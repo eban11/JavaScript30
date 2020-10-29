@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <div class="container"></div>
+
     <div class="keys">
       <div data-key="65" class="key">
         <kbd>A</kbd>
@@ -55,27 +57,24 @@
     <audio data-key="75" src="sounds/tom.wav"></audio>
     <audio data-key="76" src="sounds/tink.wav"></audio>
 
-    <div class="container"></div>
-
     <script>
       const container = document.querySelector(".container");
       const circlesArr = [];
-      const rows = 15;
-      const cols = 15;
+      const rows = 9;
+      const cols = 9;
 
       for (let i = 0; i < rows; i++) {
         circlesArr[i] = [];
         for (let j = 0; j < cols; j++) {
-          const circle = document.createElement("div");
+          let circle = document.createElement("div");
           circle.classList.add("circle");
-          circle.addEventListener("transitionend", function (e) {
-            if (e.propertyName === "transform") {
-              this.classList.remove("grow");
-            }
-          });
           container.appendChild(circle);
           circlesArr[i].push(circle);
         }
+      }
+
+      for (let j = 0; j < cols; j++) {
+        circlesArr[rows - 1][j].style.backgroundColor = "#fff";
       }
 
       const growCircle = (i, j) => {
@@ -83,11 +82,12 @@
           if (!circlesArr[i][j].classList.contains("grow")) {
             circlesArr[i][j].classList.add("grow");
             setTimeout(() => {
-              growCircle(i + 1, j);
               growCircle(i - 1, j);
-              growCircle(i, j + 1);
-              growCircle(i, j - 1);
-            }, 0);
+            }, 15);
+
+            setTimeout(() => {
+              circlesArr[i][j].classList.remove("grow");
+            }, 100);
           }
         }
       };
@@ -95,19 +95,24 @@
       const playSound = (e) => {
         const audio = document.querySelector(`audio[data-key="${e.keyCode}"]`);
         const key = document.querySelector(`.key[data-key="${e.keyCode}"]`);
+        const indexs = {
+          65: 0,
+          83: 1,
+          68: 2,
+          70: 3,
+          71: 4,
+          72: 5,
+          74: 6,
+          75: 7,
+          76: 8,
+        };
 
         if (audio) {
           key.classList.add("playing");
           audio.currentTime = 0;
           audio.play();
-          // let i = Math.floor(Math.random() * rows);
-          // let j = Math.floor(Math.random() * cols);
-          growCircle(8, 8);
-          for (let k = 0; k < rows; k++) {
-            for (let l = 0; l < cols; l++) {
-              circlesArr[k][l].classList.remove("grow");
-            }
-          }
+
+          growCircle(8, indexs[e.keyCode]);
         }
       };
 
